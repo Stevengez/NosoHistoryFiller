@@ -18,7 +18,13 @@ const killService = () => {
 }
 
 const checkNodeVitality = async () => {
-    const mnResult = await rpc.getMainnetInfo();
+    let mnResult;
+    try {
+        mnResult = await rpc.getMainnetInfo();
+    }catch(e){
+        console.log("RPC connection failed, restarting service...");
+        killService();
+    }
     const mnCurrentBlock = mnResult.result;
     const currentApiBlock = await api.getConsensusLastBlock();
 
@@ -62,10 +68,8 @@ const checkNodeVitality = async () => {
                 console.log("Current Block Time: ", currentBlockTime);
                 console.log("Node is unhealthy, restarting... ");
                 killService();    
-                let ttNextBlock = 600 - Math.ceil((Date.now() / 1000) % 600);
-                let ttNextCheck = ttNextBlock+60;
-                console.log("Next Node Check in", ttNextCheck, "secs");
-                setTimeout(checkNodeVitality, ttNextCheck*1000);
+                console.log("Next Node Check in 2 minutes");
+                setTimeout(checkNodeVitality, 120000);
             }else{
                 let ttNextCheck = 60 - currentBlockTime;
                 console.log("Node seems unhealthy, double check in: ", ttNextCheck);

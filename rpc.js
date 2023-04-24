@@ -69,7 +69,7 @@ const getMainnetInfo = async (retries = 1) => {
     }catch(err){
         if(retries < 10){
             console.log("Error retrieveing mainnet info from RPC server, retrying...");
-            await new Promise(r => setTimeout(r, 100*retries));
+            await new Promise(r => setTimeout(r, 200*retries));
             return await getMainnetInfo(retries+1);
         }else{
             throw {
