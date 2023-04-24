@@ -24,6 +24,8 @@ const checkNodeVitality = async () => {
     }catch(e){
         console.log("RPC connection failed, restarting service...");
         killService();
+        console.log("Next Node Check in 2 minutes");
+        return setTimeout(checkNodeVitality, 120000);
     }
     const mnCurrentBlock = mnResult.result;
     const currentApiBlock = await api.getConsensusLastBlock();
