@@ -1,2 +1,2 @@
 # NosoHistoryFiller
-Script to feed a mongodb from a local node and to keep it alive.
+ Small script to fill a mongodb from a noso node
