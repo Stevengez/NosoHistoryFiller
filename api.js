@@ -1,6 +1,7 @@
 const axios = require('axios');
 const https = require('https');
 const fs = require('fs');
+const { prepareBase64 } = require('./secure');
 const agent = new https.Agent({
     ca: fs.readFileSync('./CERT/CA.cert'),
     rejectUnauthorized: true
@@ -13,6 +14,9 @@ const sendAPIRequest = async (method, path, body, retries = 1) => {
         if(method === 'get'){
             let response = await axios.get(API_HOST+path,
                 {
+                    headers: {
+                        'Authorization': prepareBase64()
+                    },
                     httpsAgent: agent // Set the https agent with the certificate
                 }
             );
@@ -27,7 +31,8 @@ const sendAPIRequest = async (method, path, body, retries = 1) => {
             let response = await axios.post(API_HOST+path,
                 body,{
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': prepareBase64()
                     },
                     httpsAgent: agent // Set the https agent with the certificate
                 }
