@@ -82,4 +82,4 @@ const checkNodeVitality = async () => {
 }
 
 console.log("Waiting 1 minute before start health check...");
-setTimeout(checkNodeVitality, 600);
+setTimeout(checkNodeVitality, 60000);
