@@ -15,7 +15,8 @@ const sendAPIRequest = async (method, path, body, retries = 1) => {
             let response = await axios.get(API_HOST+path,
                 {
                     headers: {
-                        'Authorization': prepareBase64()
+                        'Authorization': prepareBase64(),
+                        'Origin': 'https://www.7software.dev'
                     },
                     httpsAgent: agent // Set the https agent with the certificate
                 }
@@ -32,7 +33,8 @@ const sendAPIRequest = async (method, path, body, retries = 1) => {
                 body,{
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': prepareBase64()
+                        'Authorization': prepareBase64(),
+                        'Origin': 'https://www.7software.dev'
                     },
                     httpsAgent: agent // Set the https agent with the certificate
                 }
