@@ -40,10 +40,15 @@ const resumeCycle = async () => {
                     console.log("# Found", orders.length, "orders");
                     
                     for(let o of orders){
-                        let response = await rpc.getOrderInfo(o.orderid);
-                        let orderData = response.result.order;
-                        await controller.createOrder(orderData);
-
+			if(o.fee !== undefined || o.fees !== undefined){
+				await controller.createOrder({...o, fees: o.fees ? o.fees : o.fee});				
+			}else{
+				console.log("Ods: ", o.fees, o.Fees, o);
+	                        let response = await rpc.getOrderInfo(o.orderid);
+        	                let orderData = response.result.order;
+                	        await controller.createOrder({...orderData, fees: orderData.fees ? orderData.fees : orderData.fee});				
+			if(orderData.fees === undefined && orderData.fee === undefined) console.log("missing fees: ", orderData.orderid, orderData.fees, orderData.Fees, orderData);
+			}
                     }
                     let blockRes = await controller.updateBlock(currentDbBlock._id, processingBlock);
                     console.log("# Latest burned block updated: ", blockRes.highest);

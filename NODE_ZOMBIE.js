@@ -6,8 +6,8 @@ const api = require('./api');
 
 let failCheck = 0;
 
-const killService = () => {
-    const serviceName = "noso.service";
+const killService = (isAPI) => {
+    const serviceName = isAPI?"noso.service":"nosoapi.service";
     exec(`systemctl restart ${serviceName}`, (error, stdout, stderr) => {
     if (error) {
         console.error(`Error al reiniciar el servicio ${serviceName}: ${error}`);
@@ -45,6 +45,24 @@ const checkNodeVitality = async () => {
             /* Kill Process somehow */
             killService();
             
+            let ttNextCheck = Math.ceil((600 - ((Date.now() / 1000) % 600))/2);
+            if(ttNextCheck < 60){
+                ttNextCheck+= 320-ttNextCheck;
+            }
+
+            console.log("Next Node Check in", ttNextCheck, "secs");
+            setTimeout(checkNodeVitality, ttNextCheck*1000);
+        }
+    }else if(mnCurrentBlock > currentApiBlock){
+	if(failCheck < 5){
+            console.log("API is behind node, rechecking in 1/2 minute");
+            failCheck++;
+            return setTimeout(checkNodeVitality, 30000);
+        }else{
+            failCheck = 0;
+            /* Kill Process somehow */
+            killService(true);
+
             let ttNextCheck = Math.ceil((600 - ((Date.now() / 1000) % 600))/2);
             if(ttNextCheck < 60){
                 ttNextCheck+= 320-ttNextCheck;
