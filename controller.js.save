@@ -1,0 +1,122 @@
+const { Address, Order, Block } = require('./mondel');
+
+const getLastBlock = async (retries = 1) => {
+    try {
+        let exists = await Block.findOne({});
+        if(exists){
+            return exists;
+        }else{
+            return await Block.create({
+                highest: 0
+            });
+        }
+    }catch(e){
+        if(retries < 10){
+            await new Promise(r => setTimeout(r, 100*retries));
+            return await getLastBlock(retries +1);
+        }else{
+            throw {
+                isError: true,
+                result:  e.message,
+                stack: e.stack
+            }
+        }
+    }
+}
+
+const updateBlock = async (blockId, newBlock, retries = 1) => {
+    try {
+        return await Block.findByIdAndUpdate(
+            blockId,
+            { highest: newBlock },
+            { new: true, useFindAndModify: false }
+        );
+    }catch(e){
+        if(retries < 10){
+            await new Promise(r => setTimeout(r, 100*retries));
+            return await updateBlock(blockId, newBlock, retries+1);
+        }else{
+            throw {
+                isError: true,
+                result:  e.message,
+                stack: e.stack
+            }
+        }
+    }
+}
+
+const getAddress = async (address, block, retries = 1) => {
+    try {
+        let exists = await Address.findOne({ address: address });
+        if(exists){
+            return exists;
+        }else{
+            return return await Address.create({
+                address: address,
+                createdAt: block
+            });
+        }
+    }catch(e){
+        if(retries < 10){
+            await new Promise(r => setTimeout(r, 100*retries));
+            return await getAddress(address, block, retries +1);
+        }else{
+            throw {
+                isError: true,
+                result:  e.message,
+                stack: e.stack
+            }
+        }
+    }
+}
+
+const createOrder = async (order, retries = 1) => {
+    try {
+        let exists = await Order.findOne({ orderid: order.orderid });
+        if(exists){
+            return exists;
+        }else{
+            return await Order.create(order);
+        }
+    }catch(e){
+        if(retries < 10){
+            await new Promise(r => setTimeout(r, 100*retries));
+            return await createOrder(order, retries+1);
+        }else{
+            throw {
+                isError: true,
+                result:  e.message,
+                stack: e.stack
+            }
+        }
+    }
+}
+
+const addOrderToAddress = async (addressId, order, retries = 1) => {
+    try {
+        return Address.findByIdAndUpdate(
+            addressId,
+            { $addToSet: { txs: order._id } },
+            { new: true, useFindAndModify: false }
+        );
+    }catch(e){
+        if(retries < 10){
+            await new Promise(r => setTimeout(r, 100*retries));
+            return await addOrderToAddress(addressId, order, retries+1);
+        }else{
+            throw {
+                isError: true,
+                result:  e.message,
+                stack: e.stack
+            }
+        }
+    }    
+}
+
+module.exports = {
+    getLastBlock,
+    updateBlock,
+    getAddress,
+    addOrderToAddress,
+    createOrder
+}

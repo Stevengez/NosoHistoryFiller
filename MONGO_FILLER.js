@@ -41,12 +41,20 @@ const resumeCycle = async () => {
                     
                     for(let o of orders){
 			if(o.fee !== undefined || o.fees !== undefined){
-				await controller.createOrder({...o, fees: o.fees ? o.fees : o.fee});				
+				let newOrder = await controller.createOrder({...o, fees: o.fees !== undefined ? o.fees : o.fee});				
+				let sender = await controller.getAddress(o.sender, processingBlock);
+	                        let receiver = await controller.getAddress(o.receiver, processingBlock);
+	                        await controller.addOrderToAddress (sender._id, newOrder);
+				await controller.addOrderToAddress (receiver._id, newOrder);
 			}else{
 				console.log("Ods: ", o.fees, o.Fees, o);
 	                        let response = await rpc.getOrderInfo(o.orderid);
         	                let orderData = response.result.order;
-                	        await controller.createOrder({...orderData, fees: orderData.fees ? orderData.fees : orderData.fee});				
+                	        let newOrder = await controller.createOrder({...orderData, fees: orderData.fees ? orderData.fees : orderData.fee});				
+				let sender = await controller.getAddress(o.sender, processingBlock);
+                                let receiver = await controller.getAddress(o.receiver, processingBlock);
+                                await controller.addOrderToAddress (sender._id, newOrder);
+                                await controller.addOrderToAddress (receiver._id, newOrder);
 			if(orderData.fees === undefined && orderData.fee === undefined) console.log("missing fees: ", orderData.orderid, orderData.fees, orderData.Fees, orderData);
 			}
                     }

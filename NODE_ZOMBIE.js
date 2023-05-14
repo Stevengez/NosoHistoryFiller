@@ -7,7 +7,7 @@ const api = require('./api');
 let failCheck = 0;
 
 const killService = (isAPI) => {
-    const serviceName = isAPI?"noso.service":"nosoapi.service";
+    const serviceName = isAPI?"nosoapi.service":"noso.service";
     exec(`systemctl restart ${serviceName}`, (error, stdout, stderr) => {
     if (error) {
         console.error(`Error al reiniciar el servicio ${serviceName}: ${error}`);
