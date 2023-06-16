@@ -28,14 +28,23 @@ const checkNodeVitality = async () => {
         return setTimeout(checkNodeVitality, 120000);
     }
     const mnCurrentBlock = mnResult.result;
-    const currentApiBlock = await api.getConsensusLastBlock();
+
+    let currentApiBlock;
+    try {
+	currentApiBlock = await api.getConsensusLastBlock();
+    }catch(e){
+	console.log("API connection failed, restarting service...");
+        killService(true);
+        console.log("Next Node Check in 1 minutes");
+        return setTimeout(checkNodeVitality, 60000);
+    }
 
     console.log("# Verifying Node Delta");
     console.log("# Last Node Block: ", mnCurrentBlock.lastblock);
     console.log("# Last Consensus Block: ", currentApiBlock);
     console.log("");
 
-    if(mnCurrentBlock < currentApiBlock){
+    if(mnCurrentBlock.lastblock < currentApiBlock){
         if(failCheck < 5){
             console.log("NODE is behind Consensus, rechecking in 1/2 minute");
             failCheck++;
@@ -53,7 +62,7 @@ const checkNodeVitality = async () => {
             console.log("Next Node Check in", ttNextCheck, "secs");
             setTimeout(checkNodeVitality, ttNextCheck*1000);
         }
-    }else if(mnCurrentBlock > currentApiBlock){
+    }else if(mnCurrentBlock.lastblock > currentApiBlock){
 	if(failCheck < 5){
             console.log("API is behind node, rechecking in 1/2 minute");
             failCheck++;
